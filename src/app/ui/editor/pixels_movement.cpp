@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2023  Igara Studio S.A.
+// Copyright (C) 2019-2024  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -1310,8 +1310,11 @@ CelList PixelsMovement::getEditableCels()
     // TODO This case is used in paste too, where the cel() can be
     //      nullptr (e.g. we paste the clipboard image into an empty
     //      cel).
+    // Note: m_site.layer()->canEditPixels() is not used since
+    //       PixelsMovement can modify hidden layers.
     if (m_site.layer() &&
-        m_site.layer()->canEditPixels()) {
+        m_site.layer()->isEditable() &&
+        !m_site.layer()->isReference()) {
       cels.push_back(m_site.cel());
     }
     return cels;
@@ -1320,7 +1323,8 @@ CelList PixelsMovement::getEditableCels()
   // Current cel (m_site.cel()) can be nullptr when we paste in an
   // empty cel (Ctrl+V) and cut (Ctrl+X) the floating pixels.
   if (m_site.cel() &&
-      m_site.cel()->layer()->canEditPixels()) {
+      m_site.cel()->layer()->isEditable() &&
+      !m_site.cel()->layer()->isReference()) {
     CelList::iterator it;
 
     // If we are in a linked cel, remove the cel that matches the
